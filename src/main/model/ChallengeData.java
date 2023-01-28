@@ -1,7 +1,7 @@
 package main.model;
 
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -20,9 +20,9 @@ public class ChallengeData {
     HashMap<String[], SimpleBooleanProperty> doneMap = new HashMap<>();
     ObservableList<String> categoriesArrayList = FXCollections.observableArrayList();
     ArrayList<String> optlist = new ArrayList<>();
-    ObservableList<SimpleIntegerProperty> valuesArrayList = FXCollections.observableArrayList();
+    ObservableList<String> valuesArrayList = FXCollections.observableArrayList();
     HashMap<String, ObservableList<String>> cat_opt_map = new HashMap<>();
-    HashMap<String, SimpleIntegerProperty> opt_val_map = new HashMap<String, SimpleIntegerProperty>();
+    HashMap<String, SimpleStringProperty> opt_val_map = new HashMap<String, SimpleStringProperty>();
 
     public void loadFile() throws FileNotFoundException {
         Scanner sc = new Scanner(new File("src/main/data.csv"));
@@ -32,7 +32,7 @@ public class ChallengeData {
             this.option_amount++;
             String category = lines[0];
             String option = lines[1];
-            SimpleIntegerProperty value = new SimpleIntegerProperty(Integer.parseInt(lines[2]));
+            SimpleStringProperty value = new SimpleStringProperty(lines[2]);
             if (!categoriesArrayList.contains(category)){
                 categoriesArrayList.add(category);
                 cat_opt_map.put(category, FXCollections.observableArrayList());
@@ -61,7 +61,7 @@ public class ChallengeData {
         return doneMap;
     }
 
-    public ObservableList<SimpleIntegerProperty> getValuesArrayList() {
+    public ObservableList<String> getValuesArrayList() {
         return valuesArrayList;
     }
 
@@ -69,7 +69,7 @@ public class ChallengeData {
         return cat_opt_map;
     }
 
-    public HashMap<String, SimpleIntegerProperty> getOpt_val_map() {
+    public HashMap<String, SimpleStringProperty> getOpt_val_map() {
         return opt_val_map;
     }
     public int getIndexOf(String opt){
@@ -102,7 +102,7 @@ public class ChallengeData {
         sc.close();
     }
     
-    public void addCat(String cat, String opt, SimpleIntegerProperty sio){
+    public void addCat(String cat, String opt, SimpleStringProperty sio){
         this.option_amount++;
         if (!categoriesArrayList.contains(cat)){
             categoriesArrayList.add(cat);

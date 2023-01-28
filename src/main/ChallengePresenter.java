@@ -1,16 +1,14 @@
 package main;
 
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.geometry.Pos;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import main.model.ChallengeData;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class ChallengePresenter {
     ChallengeController controller;
@@ -34,37 +32,57 @@ public class ChallengePresenter {
             String string = challengeData.getCategoriesArrayList().get(i);
             for (String opt:
                  challengeData.getCat_opt_map().get(string)) {
-                add_triple_row(string, opt, challengeData.getOpt_val_map().get(opt));
+                addOptionRow(string, opt, challengeData.getOpt_val_map().get(opt));
             }
         }
+        controller.getSaveMenuItem().setOnAction(e->{
+            try {
+                challengeData.writeFile();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+        controller.getResetMenuItem().setOnAction(e-> {
+            try {
+                setup();
+            } catch (FileNotFoundException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
     }
-    private void add_triple_row(String cat, String opt, SimpleIntegerProperty val){
+    private void addOptionRow(String cat, String opt, SimpleStringProperty val){
         ChoiceBox<String> catField = new ChoiceBox<>();
         catField.itemsProperty().setValue(challengeData.getCategoriesArrayList());
         ChoiceBox<String> optField = new ChoiceBox<>();
+        TextField value = new TextField();
+
         catField.valueProperty().addListener(o ->
                 optField.setItems(challengeData.getCat_opt_map().get(catField.getValue())));
-        TextField value = new TextField();
-        value.textProperty().bind(val.asString());
-        optField.valueProperty().addListener(o ->
-            val.set(Integer.parseInt(String.valueOf(challengeData.getOpt_val_map().get(optField.getValue()))))
-        );
-        catField.setValue(String.valueOf(cat));
+
+        optField.valueProperty().addListener((obs, ol, nw)-> {
+            if (ol != null){
+                Bindings.unbindBidirectional(value.textProperty(), challengeData.getOpt_val_map().get(ol));
+            }
+            if (nw == null){
+                value.setText("");
+            } else {
+                Bindings.bindBidirectional(value.textProperty(), challengeData.getOpt_val_map().get(nw));
+            }
+        });
+        catField.setValue(cat);
         optField.setValue(opt);
         controller.getOptionsGrid().add(catField,0,
                 challengeData.getIndexOf(opt)+1);
         controller.getOptionsGrid().add(optField,1,
                 challengeData.getIndexOf(opt)+1);
-        HBox hBox = new HBox();
-        hBox.setAlignment(Pos.CENTER);
-        Button minus_this = new Button("-");
-        minus_this.setOnAction(e->val.subtract(1));
-        Button plus_this = new Button("+");
-        plus_this.setOnAction(e -> val.add(1));
-        hBox.getChildren().add(minus_this);
-        hBox.getChildren().add(value);
-        hBox.getChildren().add(plus_this);
+        value.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                value.setText(newValue.replaceAll("[^\\d]", ""));
+            }
+        });
+
+
         Button delButton = new Button("DELETE");
         delButton.setStyle("-fx-background-color:RED");
         delButton.setOnAction(event -> {
@@ -72,7 +90,7 @@ public class ChallengePresenter {
             challengeData.removeCat(cat, opt);
         });
         controller.getOptionsGrid().add(delButton, 3, challengeData.getIndexOf(opt)+1);
-        controller.getOptionsGrid().add(hBox, 2,
+        controller.getOptionsGrid().add(value, 2,
                 challengeData.getIndexOf(opt)+1);
     }
     public static int getRowIndexAsInteger(Node node) {

@@ -2,9 +2,11 @@ package main;
 
 import javafx.fxml.FXML;
 import javafx.scene.chart.PieChart;
+import javafx.scene.chart.StackedBarChart;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 
 public class ChallengeController {
 
@@ -12,10 +14,16 @@ public class ChallengeController {
     private MenuItem aboutMenuItem;
 
     @FXML
+    private StackedBarChart<?, ?> barChart;
+
+    @FXML
     private MenuItem catMenuItem;
 
     @FXML
     private DatePicker datePicker;
+
+    @FXML
+    private DatePicker fromDate;
 
     @FXML
     private GridPane logGrid;
@@ -35,8 +43,18 @@ public class ChallengeController {
     @FXML
     private MenuItem saveMenuItem;
 
+    @FXML
+    private DatePicker tilDate;
+
+    @FXML
+    private HBox wheelBox;
+
     public MenuItem getAboutMenuItem() {
         return aboutMenuItem;
+    }
+
+    public StackedBarChart<?, ?> getBarChart() {
+        return barChart;
     }
 
     public MenuItem getCatMenuItem() {
@@ -45,6 +63,10 @@ public class ChallengeController {
 
     public DatePicker getDatePicker() {
         return datePicker;
+    }
+
+    public DatePicker getFromDate() {
+        return fromDate;
     }
 
     public GridPane getLogGrid() {
@@ -69,5 +91,13 @@ public class ChallengeController {
 
     public MenuItem getSaveMenuItem() {
         return saveMenuItem;
+    }
+
+    public DatePicker getTilDate() {
+        return tilDate;
+    }
+
+    public HBox getWheelBox() {
+        return wheelBox;
     }
 }
