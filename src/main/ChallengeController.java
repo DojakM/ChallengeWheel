@@ -2,13 +2,13 @@ package main;
 
 import javafx.fxml.FXML;
 import javafx.scene.chart.PieChart;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 
 public class ChallengeController {
 
+    @FXML
+    private TextField valueField;
     @FXML
     private MenuItem aboutMenuItem;
 
@@ -34,10 +34,28 @@ public class ChallengeController {
     private MenuItem saveMenuItem;
 
     @FXML
-    private TreeView<?> treeView;
+    private Button addOption;
+
+    @FXML
+    private Button remOption;
+
+    @FXML
+    private TreeView<String> treeView;
 
     @FXML
     private HBox wheelBox;
+
+    public TextField getValueField() {
+        return valueField;
+    }
+
+    public Button getAddOption() {
+        return addOption;
+    }
+
+    public Button getRemOption() {
+        return remOption;
+    }
 
     public MenuItem getAboutMenuItem() {
         return aboutMenuItem;
@@ -71,7 +89,7 @@ public class ChallengeController {
         return saveMenuItem;
     }
 
-    public TreeView<?> getTreeView() {
+    public TreeView<String> getTreeView() {
         return treeView;
     }
 
