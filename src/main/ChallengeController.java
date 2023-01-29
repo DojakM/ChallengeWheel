@@ -2,10 +2,9 @@ package main;
 
 import javafx.fxml.FXML;
 import javafx.scene.chart.PieChart;
-import javafx.scene.chart.StackedBarChart;
-import javafx.scene.control.DatePicker;
 import javafx.scene.control.MenuItem;
-import javafx.scene.layout.GridPane;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TreeView;
 import javafx.scene.layout.HBox;
 
 public class ChallengeController {
@@ -14,25 +13,16 @@ public class ChallengeController {
     private MenuItem aboutMenuItem;
 
     @FXML
-    private StackedBarChart<?, ?> barChart;
+    private TableColumn<?, ?> catTable;
 
     @FXML
-    private MenuItem catMenuItem;
+    private TableColumn<?, ?> dateTable;
 
     @FXML
-    private DatePicker datePicker;
+    private TableColumn<?, ?> doneTable;
 
     @FXML
-    private DatePicker fromDate;
-
-    @FXML
-    private GridPane logGrid;
-
-    @FXML
-    private MenuItem optMenuItem;
-
-    @FXML
-    private GridPane optionsGrid;
+    private TableColumn<?, ?> optTable;
 
     @FXML
     private PieChart pieChart;
@@ -44,7 +34,7 @@ public class ChallengeController {
     private MenuItem saveMenuItem;
 
     @FXML
-    private DatePicker tilDate;
+    private TreeView<?> treeView;
 
     @FXML
     private HBox wheelBox;
@@ -53,32 +43,20 @@ public class ChallengeController {
         return aboutMenuItem;
     }
 
-    public StackedBarChart<?, ?> getBarChart() {
-        return barChart;
+    public TableColumn<?, ?> getCatTable() {
+        return catTable;
     }
 
-    public MenuItem getCatMenuItem() {
-        return catMenuItem;
+    public TableColumn<?, ?> getDateTable() {
+        return dateTable;
     }
 
-    public DatePicker getDatePicker() {
-        return datePicker;
+    public TableColumn<?, ?> getDoneTable() {
+        return doneTable;
     }
 
-    public DatePicker getFromDate() {
-        return fromDate;
-    }
-
-    public GridPane getLogGrid() {
-        return logGrid;
-    }
-
-    public MenuItem getOptMenuItem() {
-        return optMenuItem;
-    }
-
-    public GridPane getOptionsGrid() {
-        return optionsGrid;
+    public TableColumn<?, ?> getOptTable() {
+        return optTable;
     }
 
     public PieChart getPieChart() {
@@ -93,8 +71,8 @@ public class ChallengeController {
         return saveMenuItem;
     }
 
-    public DatePicker getTilDate() {
-        return tilDate;
+    public TreeView<?> getTreeView() {
+        return treeView;
     }
 
     public HBox getWheelBox() {
