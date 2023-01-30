@@ -10,7 +10,6 @@
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleButton?>
@@ -95,13 +94,7 @@
                         </ToolBar>
                      </top>
                      <center>
-                        <TableView fx:id="resTableView" prefHeight="329.0" prefWidth="391.0" BorderPane.alignment="CENTER">
-                          <columns>
-                            <TableColumn prefWidth="252.16681826114655" text="Date" />
-                              <TableColumn prefWidth="256.33314514160156" text="Option" />
-                              <TableColumn prefWidth="90.59478759765625" text="Finished" />
-                          </columns>
-                        </TableView>
+                        <TableView fx:id="resTableView" prefHeight="329.0" prefWidth="391.0" BorderPane.alignment="CENTER" />
                      </center></BorderPane>
                </content>
             </Tab>

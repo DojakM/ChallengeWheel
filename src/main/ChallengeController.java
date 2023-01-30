@@ -11,6 +11,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.HBox;
+import main.model.Result;
 
 public class ChallengeController {
 
@@ -36,7 +37,7 @@ public class ChallengeController {
     private Button remOption;
 
     @FXML
-    private TableView<?> resTableView;
+    private TableView<Result> resTableView;
 
     @FXML
     private MenuItem resetMenuItem;
@@ -90,7 +91,7 @@ public class ChallengeController {
         return remOption;
     }
 
-    public TableView<?> getResTableView() {
+    public TableView<Result> getResTableView() {
         return resTableView;
     }
 

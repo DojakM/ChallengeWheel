@@ -27,3 +27,7 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### data_files ###
+src/main/result.csv
+src/main/data.csv

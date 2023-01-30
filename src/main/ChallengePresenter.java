@@ -3,24 +3,28 @@ package main;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import main.model.ChallengeData;
+import main.model.Result;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.Scanner;
 
 public class ChallengePresenter {
     ChallengeController controller;
     ChallengeData challengeData = new ChallengeData();
-
     ChallengePresenter(ChallengeController controller) throws FileNotFoundException {
         this.controller = controller;
         setup();
@@ -68,6 +72,7 @@ public class ChallengePresenter {
     private void setup() throws FileNotFoundException {
         challengeData.loadFile();
         challengeData.loadResult();
+        setupResults();
         TreeItem<String> root = new TreeItem<>();
         for (int i = 0; i < challengeData.getCategoriesArrayList().size(); i++) {
             TreeItem<String> cat = new TreeItem<>(challengeData.getCategoriesArrayList().get(i));
@@ -160,49 +165,48 @@ public class ChallengePresenter {
         window.show();
     }
     public void remOption(){
-        if (controller.getTreeView().getRoot().getChildren().isEmpty()){
-            Stage window = new Stage();
-            window.setTitle("Are you sure?");
-            VBox vBox = new VBox();
-            vBox.alignmentProperty().setValue(Pos.CENTER);
-            vBox.getChildren().add(new Label("Remove: " +
-                    controller.getTreeView().getSelectionModel().getSelectedItems().get(0).getValue() +
-                    "?"));
-            Scene scene = new Scene(vBox, 150, 40);
-            Button remButton = new Button("REMOVE");
-            remButton.setOnAction(event -> {
-                boolean isFound = false;
-                for (TreeItem<String> categoryItem:
-                        controller.getTreeView().getRoot().getChildren()) {
-                    if (isFound){
-                        break;
-                    }
-                    if (!categoryItem.getValue().equals(
-                            controller.getTreeView().getSelectionModel().getSelectedItems().get(0).getValue())){
-                        for (TreeItem<String> option : categoryItem.getChildren()) {
-                            if (option.getValue().equals(
-                                    controller.getTreeView().getSelectionModel().getSelectedItems().get(0).getValue())){
-                                categoryItem.getChildren().remove(option);
-                                challengeData.removeCat(categoryItem.getValue(), option.getValue());
-                                if (categoryItem.getChildren().isEmpty()){
-                                    controller.getTreeView().getRoot().getChildren().remove(categoryItem);
-                                }
-                                isFound = true;
-                                break;
-                            }
-                        }
-                    } else if (categoryItem.getValue().equals(
-                            controller.getTreeView().getSelectionModel().getSelectedItems().get(0).getValue())){
-                        controller.getTreeView().getRoot().getChildren().remove(categoryItem);
-                        break;
-                    }
+        Stage window = new Stage();
+        window.setTitle("Are you sure?");
+        VBox vBox = new VBox();
+        vBox.alignmentProperty().setValue(Pos.CENTER);
+        vBox.getChildren().add(new Label("Remove: " +
+                controller.getTreeView().getSelectionModel().getSelectedItems().get(0).getValue() +
+                "?"));
+        Scene scene = new Scene(vBox, 150, 40);
+        Button remButton = new Button("REMOVE");
+        remButton.setOnAction(event -> {
+            boolean isFound = false;
+            for (TreeItem<String> categoryItem:
+                    controller.getTreeView().getRoot().getChildren()) {
+                if (isFound){
+                    break;
                 }
-                window.close();
-            });
-            vBox.getChildren().add(remButton);
-            window.setScene(scene);
-            window.show();
-        }
+                if (!categoryItem.getValue().equals(
+                        controller.getTreeView().getSelectionModel().getSelectedItems().get(0).getValue())){
+                    for (TreeItem<String> option : categoryItem.getChildren()) {
+                        if (option.getValue().equals(
+                                controller.getTreeView().getSelectionModel().getSelectedItems().get(0).getValue())){
+                            categoryItem.getChildren().remove(option);
+                            challengeData.removeCat(categoryItem.getValue(), option.getValue());
+                            if (categoryItem.getChildren().isEmpty()){
+                                controller.getTreeView().getRoot().getChildren().remove(categoryItem);
+                            }
+                            isFound = true;
+                            break;
+                        }
+                    }
+                } else if (categoryItem.getValue().equals(
+                        controller.getTreeView().getSelectionModel().getSelectedItems().get(0).getValue())){
+                    controller.getTreeView().getRoot().getChildren().remove(categoryItem);
+                    break;
+                }
+            }
+            window.close();
+        });
+        vBox.getChildren().add(remButton);
+        window.setScene(scene);
+        window.show();
+
     }
     public void aboutMenu() throws FileNotFoundException {
         Stage about = new Stage();
@@ -222,6 +226,59 @@ public class ChallengePresenter {
         about.setScene(scene);
         about.show();
     }
+    public void setupResults(){
+        TableColumn<Result, LocalDate> dateColumn = new TableColumn<>("Date");
+        TableColumn<Result, String> optionColumn = new TableColumn<>("Option");
+        TableColumn<Result, Boolean> doneColumn = new TableColumn<>("is Done");
+        dateColumn.setCellValueFactory(
+                new PropertyValueFactory<>("localDateObjectProperty")
+        );
+        optionColumn.setCellValueFactory(
+                new PropertyValueFactory<>("option")
+        );
+        doneColumn.setCellValueFactory(
+                new PropertyValueFactory<>("Done")
+        );
+        FilteredList<Result> filteredList = new FilteredList<>(challengeData.getResList(), p -> true);
+        controller.getStartDate().setOnAction(e->{
+            filteredList.setPredicate(result -> {
+                if (controller.getStartDate().getValue() == null){
+                    return true;
+                } else return !result.getLocalDateObjectProperty().isBefore(controller.getStartDate().getValue());
+            });
+        });
+        controller.getEndDate().setOnAction(e->{
+            filteredList.setPredicate(result -> {
+                if (controller.getStartDate().getValue() == null){
+                    return true;
+                } else return !result.getLocalDateObjectProperty().isAfter(controller.getStartDate().getValue());
+            });
+        });
+        controller.getSearchField().textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredList.setPredicate(result -> {
+                if (controller.getStartDate().getValue() == null){
+                    return true;
+                } else return result.getOption().toLowerCase().contains(newValue.toLowerCase());
+            });
+        });
+        controller.getSwitchField().setOnAction(e->{
+            if(controller.getSwitchField().isSelected()){
+                controller.getSwitchField().setText("True");
+                filteredList.setPredicate(Result::isDone);
+            } else {
+                controller.getSwitchField().setText("False");
+                filteredList.setPredicate(result -> !result.isDone());
+            }
+        });
+
+        SortedList<Result> sortedList = new SortedList<>(filteredList);
+        sortedList.comparatorProperty().bind(controller.getResTableView().comparatorProperty());
+        dateColumn.setMinWidth(200);
+        optionColumn.setMinWidth(200);
+        doneColumn.setMinWidth(200);
+        controller.getResTableView().getColumns().add(dateColumn);
+        controller.getResTableView().getColumns().add(optionColumn);
+        controller.getResTableView().getColumns().add(doneColumn);
+        controller.getResTableView().setItems(sortedList);
+    }
 }
-
-

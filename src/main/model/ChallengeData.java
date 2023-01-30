@@ -21,7 +21,7 @@ public class ChallengeData {
     ArrayList<String> optlist = new ArrayList<>();
     HashMap<String, ObservableList<String>> cat_opt_map = new HashMap<>();
     HashMap<String, SimpleStringProperty> opt_val_map = new HashMap<>();
-    ObservableList<String[]> resList = FXCollections.observableArrayList();
+    ObservableList<Result> resList = FXCollections.observableArrayList();
 
     public ArrayList<String> getOptlist() {
         return optlist;
@@ -34,6 +34,9 @@ public class ChallengeData {
     }
     public HashMap<String, SimpleStringProperty> getOpt_val_map() {
         return opt_val_map;
+    }
+    public ObservableList<Result> getResList() {
+        return resList;
     }
     public int getIndexOf(String opt){
         return this.optlist.indexOf(opt);
@@ -85,9 +88,8 @@ public class ChallengeData {
         resList.clear();
         Scanner sc = new Scanner(new File("src/main/result.csv"));
         while (sc.hasNextLine()){
-            String current_line = sc.nextLine();
-            String[] frags = current_line.split(",");
-            resList.add(frags);
+            String[] inputString = sc.nextLine().split(",");
+            resList.add(new Result(inputString[0], inputString[1], inputString[2]));
         }
         sc.close();
     }
@@ -118,9 +120,11 @@ public class ChallengeData {
     public void writeResults() throws IOException {
         FileWriter fileWriter = new FileWriter("src/main/result.csv", false);
         StringBuilder text = new StringBuilder();
-        for (String[] frags:
+        for (Result result:
              resList) {
-            text.append(frags[0]).append(",").append(frags[1]).append(",").append(frags[2]).append("\n");
+            text.append(result.getLocalDateObjectProperty()).append(",")
+                    .append(result.getOption()).append(",")
+                    .append(result.doneProperty().get()).append("\n");
         }
         fileWriter.write(text.toString());
         fileWriter.close();
