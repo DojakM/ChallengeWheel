@@ -160,44 +160,49 @@ public class ChallengePresenter {
         window.show();
     }
     public void remOption(){
-        Stage window = new Stage();
-        window.setTitle("Are you sure?");
-        VBox vBox = new VBox();
-        vBox.alignmentProperty().setValue(Pos.CENTER);
-        vBox.getChildren().add(new Label("Remove: " +
-                controller.getTreeView().getSelectionModel().getSelectedItems().get(0).getValue() +
-                "?"));
-        Scene scene = new Scene(vBox, 150, 40);
-        Button remButton = new Button("REMOVE");
-        remButton.setOnAction(event -> {
-            boolean isFound = false;
-            for (TreeItem<String> categoryItem:
-                    controller.getTreeView().getRoot().getChildren()) {
-                if (isFound){
-                    break;
-                }
-                if (!categoryItem.getValue().equals(controller.getTreeView().getSelectionModel().getSelectedItems().get(0).getValue())){
-                    for (TreeItem<String> option : categoryItem.getChildren()) {
-                        if (option.getValue().equals(controller.getTreeView().getSelectionModel().getSelectedItems().get(0).getValue())){
-                            categoryItem.getChildren().remove(option);
-                            challengeData.removeCat(categoryItem.getValue(), option.getValue());
-                            if (categoryItem.getChildren().isEmpty()){
-                                controller.getTreeView().getRoot().getChildren().remove(categoryItem);
-                            }
-                            isFound = true;
-                            break;
-                        }
+        if (controller.getTreeView().getRoot().getChildren().isEmpty()){
+            Stage window = new Stage();
+            window.setTitle("Are you sure?");
+            VBox vBox = new VBox();
+            vBox.alignmentProperty().setValue(Pos.CENTER);
+            vBox.getChildren().add(new Label("Remove: " +
+                    controller.getTreeView().getSelectionModel().getSelectedItems().get(0).getValue() +
+                    "?"));
+            Scene scene = new Scene(vBox, 150, 40);
+            Button remButton = new Button("REMOVE");
+            remButton.setOnAction(event -> {
+                boolean isFound = false;
+                for (TreeItem<String> categoryItem:
+                        controller.getTreeView().getRoot().getChildren()) {
+                    if (isFound){
+                        break;
                     }
-                } else if (categoryItem.getValue().equals(controller.getTreeView().getSelectionModel().getSelectedItems().get(0).getValue())){
-                    controller.getTreeView().getRoot().getChildren().remove(categoryItem);
-                    break;
+                    if (!categoryItem.getValue().equals(
+                            controller.getTreeView().getSelectionModel().getSelectedItems().get(0).getValue())){
+                        for (TreeItem<String> option : categoryItem.getChildren()) {
+                            if (option.getValue().equals(
+                                    controller.getTreeView().getSelectionModel().getSelectedItems().get(0).getValue())){
+                                categoryItem.getChildren().remove(option);
+                                challengeData.removeCat(categoryItem.getValue(), option.getValue());
+                                if (categoryItem.getChildren().isEmpty()){
+                                    controller.getTreeView().getRoot().getChildren().remove(categoryItem);
+                                }
+                                isFound = true;
+                                break;
+                            }
+                        }
+                    } else if (categoryItem.getValue().equals(
+                            controller.getTreeView().getSelectionModel().getSelectedItems().get(0).getValue())){
+                        controller.getTreeView().getRoot().getChildren().remove(categoryItem);
+                        break;
+                    }
                 }
-            }
-            window.close();
-        });
-        vBox.getChildren().add(remButton);
-        window.setScene(scene);
-        window.show();
+                window.close();
+            });
+            vBox.getChildren().add(remButton);
+            window.setScene(scene);
+            window.show();
+        }
     }
     public void aboutMenu() throws FileNotFoundException {
         Stage about = new Stage();
