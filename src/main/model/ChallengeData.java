@@ -16,15 +16,48 @@ import java.util.Scanner;
 public class ChallengeData {
     public int option_amount = 0;
 
-    ObservableList<String> resultsArrayList = FXCollections.observableArrayList();
     HashMap<String[], SimpleBooleanProperty> doneMap = new HashMap<>();
     ObservableList<String> categoriesArrayList = FXCollections.observableArrayList();
     ArrayList<String> optlist = new ArrayList<>();
-    ObservableList<String> valuesArrayList = FXCollections.observableArrayList();
     HashMap<String, ObservableList<String>> cat_opt_map = new HashMap<>();
-    HashMap<String, SimpleStringProperty> opt_val_map = new HashMap<String, SimpleStringProperty>();
+    HashMap<String, SimpleStringProperty> opt_val_map = new HashMap<>();
+    ObservableList<String[]> resList = FXCollections.observableArrayList();
 
+    public ArrayList<String> getOptlist() {
+        return optlist;
+    }
+    public ObservableList<String> getCategoriesArrayList() {
+        return categoriesArrayList;
+    }
+    public HashMap<String, ObservableList<String>> getCat_opt_map() {
+        return cat_opt_map;
+    }
+    public HashMap<String, SimpleStringProperty> getOpt_val_map() {
+        return opt_val_map;
+    }
+    public int getIndexOf(String opt){
+        return this.optlist.indexOf(opt);
+    }
+    public void writeFile() throws IOException {
+        FileWriter fileWriter = new FileWriter("src/main/data.csv", false);
+        for (String category:
+             categoriesArrayList) {
+            for (Object option:
+                 cat_opt_map.get(category)) {
+                String text = category + ",";
+                text += option.toString() + ",";
+                text += opt_val_map.get(option).get() + "\n";
+                fileWriter.write(text);
+            }
+        }
+        fileWriter.close();
+    }
     public void loadFile() throws FileNotFoundException {
+        cat_opt_map.clear();
+        categoriesArrayList.clear();
+        optlist.clear();
+        opt_val_map.clear();
+        option_amount = 0;
         Scanner sc = new Scanner(new File("src/main/data.csv"));
         while (sc.hasNextLine()){
             String current_line = sc.nextLine();
@@ -48,60 +81,16 @@ public class ChallengeData {
         }
         sc.close();
     }
-
-    public ObservableList<String> getResultsArrayList() {
-        return resultsArrayList;
-    }
-
-    public ObservableList<String> getCategoriesArrayList() {
-        return categoriesArrayList;
-    }
-
-    public HashMap<String[], SimpleBooleanProperty> getDoneMap() {
-        return doneMap;
-    }
-
-    public ObservableList<String> getValuesArrayList() {
-        return valuesArrayList;
-    }
-
-    public HashMap<String, ObservableList<String>> getCat_opt_map() {
-        return cat_opt_map;
-    }
-
-    public HashMap<String, SimpleStringProperty> getOpt_val_map() {
-        return opt_val_map;
-    }
-    public int getIndexOf(String opt){
-        return this.optlist.indexOf(opt);
-    }
-
-    public void writeFile() throws IOException {
-        FileWriter fileWriter = new FileWriter("src/main/data.csv", false);
-        for (String category:
-             categoriesArrayList) {
-            for (Object option:
-                 cat_opt_map.get(category)) {
-                String text = category + ",";
-                text += option.toString() + ",";
-                text += opt_val_map.get(option) + "\n";
-                fileWriter.write(text);
-            }
-        }
-        fileWriter.close();
-    }
-
     public void loadResult() throws FileNotFoundException {
-        resultsArrayList.clear();
+        resList.clear();
         Scanner sc = new Scanner(new File("src/main/result.csv"));
         while (sc.hasNextLine()){
             String current_line = sc.nextLine();
             String[] frags = current_line.split(",");
-
+            resList.add(frags);
         }
         sc.close();
     }
-    
     public void addCat(String cat, String opt, SimpleStringProperty sio){
         this.option_amount++;
         if (!categoriesArrayList.contains(cat)){
@@ -123,15 +112,17 @@ public class ChallengeData {
         if (cat_opt_map.get(cat).isEmpty()){
             categoriesArrayList.remove(cat);
             cat_opt_map.remove(cat);
-
         }
         opt_val_map.remove(opt);
     }
-
-    public void writeResults(String date, String option, Boolean isDone) throws IOException {
+    public void writeResults() throws IOException {
         FileWriter fileWriter = new FileWriter("src/main/result.csv", false);
-        String text = date + "," + option + "," + isDone + "\n";
-        fileWriter.write(text);
+        StringBuilder text = new StringBuilder();
+        for (String[] frags:
+             resList) {
+            text.append(frags[0]).append(",").append(frags[1]).append(",").append(frags[2]).append("\n");
+        }
+        fileWriter.write(text.toString());
         fileWriter.close();
     }
 }

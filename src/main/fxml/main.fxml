@@ -3,20 +3,22 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.PieChart?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Font?>
 
 <BorderPane xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.ChallengeController">
    <top>
@@ -41,7 +43,7 @@
         <tabs>
           <Tab text="Wheels">
                <content>
-                  <HBox fx:id="wheelBox" prefHeight="100.0" prefWidth="200.0" />
+                  <HBox fx:id="wheelBox" alignment="CENTER" prefHeight="100.0" prefWidth="200.0" />
                </content>
           </Tab>
             <Tab text="Options">
@@ -62,12 +64,17 @@
                                  <padding>
                                     <Insets left="150.0" />
                                  </padding>
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
                               </Label>
-                              <TextField fx:id="valueField" prefHeight="26.0" prefWidth="49.0">
-                                 <padding>
-                                    <Insets left="150.0" />
-                                 </padding>
-                              </TextField>
+                              <Button fx:id="minusButton" maxHeight="8.0" minHeight="8.0" mnemonicParsing="false" prefHeight="8.0" prefWidth="12.0" style="-fx-background-color: lightblue; -fx-shape: &quot;M 100 200 L 100 350 L 750 350 L 750 200 L 100 200 M 100 200 L 100 350 L 750 350 L 750 200 L 100 200 &quot;; -fx-border-color: teal;" />
+                              <Label fx:id="valLabel" text="0">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                              <Button fx:id="plusButton" maxHeight="16.0" minHeight="8.0" mnemonicParsing="false" prefHeight="8.0" style="-fx-background-color: lightblue; -fx-shape: &quot;M 300 50 L 500 50 L 500 200 L 650 200 L 650 400 L 500 400 L 500 550 L 300 550 L 300 400 L 150 400 L 150 200 L 300 200 L 300 50 M 300 50 L 500 50 L 500 200 L 650 200 L 650 400 L 500 400 L 500 550 L 300 550 L 300 400 L 150 400 L 150 200 L 300 200 L 300 50 &quot;; -fx-border-color: teal;" />
                           </items>
                         </ToolBar>
                      </top>
@@ -76,18 +83,26 @@
             </Tab>
             <Tab text="Result">
                <content>
-                  <ScrollPane fitToHeight="true" fitToWidth="true" vbarPolicy="ALWAYS">
-                     <content>
-                        <TableView prefHeight="200.0" prefWidth="200.0">
+                  <BorderPane prefHeight="200.0" prefWidth="200.0">
+                     <top>
+                        <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                           <items>
+                              <DatePicker fx:id="startDate" prefHeight="26.0" prefWidth="116.0" promptText="Start" />
+                              <DatePicker fx:id="endDate" prefHeight="26.0" prefWidth="111.0" promptText="End" />
+                              <TextField fx:id="searchField" promptText="Search Field" />
+                              <ToggleButton fx:id="switchField" mnemonicParsing="false" />
+                           </items>
+                        </ToolBar>
+                     </top>
+                     <center>
+                        <TableView fx:id="resTableView" prefHeight="329.0" prefWidth="391.0" BorderPane.alignment="CENTER">
                           <columns>
-                            <TableColumn fx:id="catTable" editable="false" minWidth="-1.0" prefWidth="150.0" text="Category" />
-                            <TableColumn fx:id="optTable" editable="false" minWidth="-1.0" prefWidth="150.0" text="Option" />
-                              <TableColumn fx:id="doneTable" minWidth="-1.0" prefWidth="150.0" text="Was Done" />
-                              <TableColumn fx:id="dateTable" minWidth="-1.0" prefWidth="150.0" text="Date" />
+                            <TableColumn prefWidth="252.16681826114655" text="Date" />
+                              <TableColumn prefWidth="256.33314514160156" text="Option" />
+                              <TableColumn prefWidth="90.59478759765625" text="Finished" />
                           </columns>
                         </TableView>
-                     </content>
-                  </ScrollPane>
+                     </center></BorderPane>
                </content>
             </Tab>
         </tabs>

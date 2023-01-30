@@ -12,7 +12,7 @@ public class main extends Application {
         var presenter = new ChallengePresenter(View.getController());
         // set the stage and show
         stage.setScene(new Scene(View.getRoot()));
-        stage.setTitle("Pdb Viewer");
+        stage.setTitle("Challenge Wheel");
         stage.show();
     }
 }
