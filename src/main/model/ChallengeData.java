@@ -22,7 +22,6 @@ public class ChallengeData {
     HashMap<String, ObservableList<String>> cat_opt_map = new HashMap<>();
     HashMap<String, SimpleStringProperty> opt_val_map = new HashMap<>();
     ObservableList<Result> resList = FXCollections.observableArrayList();
-
     public ArrayList<String> getOptlist() {
         return optlist;
     }
@@ -116,6 +115,10 @@ public class ChallengeData {
             cat_opt_map.remove(cat);
         }
         opt_val_map.remove(opt);
+    }
+    public void remAll(String cat){
+        cat_opt_map.remove(cat);
+        categoriesArrayList.remove(cat);
     }
     public void writeResults() throws IOException {
         FileWriter fileWriter = new FileWriter("src/main/result.csv", false);

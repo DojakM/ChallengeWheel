@@ -7,11 +7,14 @@ import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.SubScene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import main.model.ChallengeData;
 import main.model.Result;
@@ -28,6 +31,7 @@ public class ChallengePresenter {
     ChallengePresenter(ChallengeController controller) throws FileNotFoundException {
         this.controller = controller;
         setup();
+        // Just MenuItem Functiality
         controller.getResetMenuItem().setOnAction(event -> {
             try {
                 setup();
@@ -68,11 +72,24 @@ public class ChallengePresenter {
                 if (val_sio >= 0){sio.setValue(String.valueOf(val_sio));}
             }
         });
+
+        // Add Listener to Wheel Tab, so it refreshes itself
+        controller.getWheelTab().selectedProperty().addListener((o,v,e) ->{
+            if (e){
+                setUpWheelPage();
+            }
+        });
     }
     private void setup() throws FileNotFoundException {
+        //Loading data in
         challengeData.loadFile();
         challengeData.loadResult();
-        setupResults();
+        //Setup Result Page
+        setUpResults();
+        setUpWheelPage();
+        setUpOption();
+    }
+    public void setUpOption(){
         TreeItem<String> root = new TreeItem<>();
         for (int i = 0; i < challengeData.getCategoriesArrayList().size(); i++) {
             TreeItem<String> cat = new TreeItem<>(challengeData.getCategoriesArrayList().get(i));
@@ -85,10 +102,12 @@ public class ChallengePresenter {
             root.getChildren().add(cat);
         }
         controller.getTreeView().getSelectionModel().selectedItemProperty().addListener((o, v, e) -> {
-            if (e.isLeaf()){
-                controller.getValLabel().textProperty().unbind();
-                StringProperty value = challengeData.getOpt_val_map().get(e.getValue());
-                controller.getValLabel().textProperty().bind(value);
+            if (e != null){
+                if (e.isLeaf()){
+                    controller.getValLabel().textProperty().unbind();
+                    StringProperty value = challengeData.getOpt_val_map().get(e.getValue());
+                    controller.getValLabel().textProperty().bind(value);
+                }
             }
         });
         controller.getTreeView().setRoot(root);
@@ -197,6 +216,7 @@ public class ChallengePresenter {
                     }
                 } else if (categoryItem.getValue().equals(
                         controller.getTreeView().getSelectionModel().getSelectedItems().get(0).getValue())){
+                    challengeData.remAll(categoryItem.getValue());
                     controller.getTreeView().getRoot().getChildren().remove(categoryItem);
                     break;
                 }
@@ -226,7 +246,7 @@ public class ChallengePresenter {
         about.setScene(scene);
         about.show();
     }
-    public void setupResults(){
+    public void setUpResults(){
         TableColumn<Result, LocalDate> dateColumn = new TableColumn<>("Date");
         TableColumn<Result, String> optionColumn = new TableColumn<>("Option");
         TableColumn<Result, Boolean> doneColumn = new TableColumn<>("is Done");
@@ -281,4 +301,26 @@ public class ChallengePresenter {
         controller.getResTableView().getColumns().add(doneColumn);
         controller.getResTableView().setItems(sortedList);
     }
+    public void setUpWheelPage(){
+        if (challengeData.getCategoriesArrayList().isEmpty()){
+            controller.getWheelPane().getChildren().add(new Label("No options yet"));
+        } else{
+            controller.getWheelPane().getChildren().clear();
+            controller.getWheelBar().getItems().clear();
+            for (String category:
+                    challengeData.getCategoriesArrayList()) {
+                Button button = new Button(category);
+                ObservableList<String> elements = challengeData.getCat_opt_map().get(category);
+                button.setOnAction(event -> {
+                    setUpWheel(category, elements);
+                });
+                controller.getWheelBar().getItems().add(button);
+            }
+        }
+
+    }
+    public void setUpWheel(String category, ObservableList<String> strings){
+
+    }
+
 }

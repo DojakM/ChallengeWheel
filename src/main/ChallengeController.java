@@ -2,15 +2,8 @@ package main;
 
 import javafx.fxml.FXML;
 import javafx.scene.chart.PieChart;
-import javafx.scene.control.Button;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.TreeView;
-import javafx.scene.layout.HBox;
+import javafx.scene.control.*;
+import javafx.scene.layout.Pane;
 import main.model.Result;
 
 public class ChallengeController {
@@ -52,6 +45,9 @@ public class ChallengeController {
     private DatePicker startDate;
 
     @FXML
+    private ListView<String> statsView;
+
+    @FXML
     private ToggleButton switchField;
 
     @FXML
@@ -61,7 +57,16 @@ public class ChallengeController {
     private Label valLabel;
 
     @FXML
-    private HBox wheelBox;
+    private ToolBar wheelBar;
+
+    @FXML
+    private Pane wheelPane;
+
+    @FXML
+    private Tab wheelsTab;
+    public Tab getWheelTab() {
+        return wheelsTab;
+    }
 
     public MenuItem getAboutMenuItem() {
         return aboutMenuItem;
@@ -111,6 +116,10 @@ public class ChallengeController {
         return startDate;
     }
 
+    public ListView<String> getStatsView() {
+        return statsView;
+    }
+
     public ToggleButton getSwitchField() {
         return switchField;
     }
@@ -123,7 +132,11 @@ public class ChallengeController {
         return valLabel;
     }
 
-    public HBox getWheelBox() {
-        return wheelBox;
+    public ToolBar getWheelBar() {
+        return wheelBar;
+    }
+
+    public Pane getWheelPane() {
+        return wheelPane;
     }
 }
