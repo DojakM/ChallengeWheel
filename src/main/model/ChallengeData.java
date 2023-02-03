@@ -132,5 +132,10 @@ public class ChallengeData {
         fileWriter.write(text.toString());
         fileWriter.close();
     }
+
+    public void addResult(String object){
+        Result newResult = new Result(java.time.LocalDate.now().toString(),object,"false");
+        resList.add(newResult);
+    }
 }
 

@@ -1,33 +1,66 @@
 package main;
 
+import javafx.animation.RotateTransition;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
+import javafx.geometry.VPos;
+import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.SubScene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Arc;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Shape;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
+import javafx.scene.text.TextBoundsType;
+import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import main.model.ChallengeData;
 import main.model.Result;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Random;
 import java.util.Scanner;
 
 public class ChallengePresenter {
     ChallengeController controller;
     ChallengeData challengeData = new ChallengeData();
+
+    ObservableList<String> spunAlready = FXCollections.observableArrayList();
+    Color[] colors = {
+            Color.rgb(0, 165, 227),
+            Color.rgb(141, 215, 191),
+            Color.rgb(255, 150, 197),
+            Color.rgb(255, 87, 104),
+            Color.rgb(255, 191, 101),
+            Color.rgb(108, 136, 196),
+            Color.rgb(231, 117, 119),
+            Color.rgb(242,212,204),
+            Color.rgb(255, 216, 114),
+            Color.rgb(253, 98, 56),
+            Color.rgb(192, 87, 122),
+            Color.rgb(0, 205, 169)
+
+    };
     ChallengePresenter(ChallengeController controller) throws FileNotFoundException {
         this.controller = controller;
         setup();
@@ -146,6 +179,8 @@ public class ChallengePresenter {
             }
         });
         go.setDisable(true);
+        val.setEditable(false);
+        val.setText("1");
         val.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.matches("\\d*")) {
                 val.setText(newValue.replaceAll("[^\\d]", ""));
@@ -320,7 +355,147 @@ public class ChallengePresenter {
 
     }
     public void setUpWheel(String category, ObservableList<String> strings){
+        if (!spunAlready.contains(category)){
+            controller.getWheelPane().getChildren().clear();
+            Group texts = new Group();
+            Group wheelSlices = new Group();
+            Group wheelBody = new Group();
+            Polygon polygon = createTriangle(
+                    new Point2D(controller.getWheelPane().getWidth()/4-25, controller.getWheelPane().getHeight()/2-12.5),
+                    new Point2D(controller.getWheelPane().getWidth()/4-25, controller.getWheelPane().getHeight()/2+12.5),
+                    new Point2D(controller.getWheelPane().getWidth()/4, controller.getWheelPane().getHeight()/2),
+                    Color.FIREBRICK
+                    );
+            for (int i = 0; strings.size()>i; i++){
+                Text text = setTexts(strings.size(), i, strings.get(i));
+                texts.getChildren().add(text);
+                wheelBody.getChildren().add(drawSliceBody(strings.size(), i));
+                wheelSlices.getChildren().add(drawSlice(strings.size(), i));
 
+            }
+            double offset;
+            if (strings.size()>2){
+                offset = 15*(strings.size()-1);
+            } else {
+                offset = 0;
+            }
+            wheelSlices.setRotate(360.0/strings.size() + offset);
+            Group all_comp = new Group(wheelSlices,  wheelBody, texts);
+            controller.getWheelPane().getChildren().add(all_comp);
+            controller.getWheelPane().getChildren().add(polygon);
+            controller.getWheelPane().getChildren().get(0).setOnMouseClicked(event -> {
+                Random random = new Random();
+                double rot = random.nextDouble(360, 3600);
+                RotateTransition rt = new RotateTransition(
+                        new Duration(rot),
+                        all_comp);
+                rt.setByAngle(rot);
+                rt.setCycleCount(1);
+                rt.setAutoReverse(false);
+                rt.play();
+                double new_angle = (rot%360)-90;
+                int value = (int) Math.round(new_angle/(360.0/strings.size()));
+                if (value == -1){
+                    value = 0;
+                }
+                String option = challengeData.getCat_opt_map().get(category).get(value);
+                challengeData.addResult(option);
+                spunAlready.add(category);
+                for (Node but:
+                     controller.getWheelBar().getItems()) {
+                    if(((Button) but).getText().equals(category)){
+                        but.setDisable(true);
+                        break;
+                    }
+                }
+                controller.getWheelPane().getChildren().get(0).setDisable(true);
+            });
+        } else {
+            Stage stage = new Stage();
+            VBox vbox = new VBox();
+            Label label = new Label("Spin again?");
+            Button yes = new Button("Yes");
+            Button no = new Button("No");
+            yes.setOnAction(event -> {
+                spunAlready.remove(category);
+                setUpWheel(category, strings);
+                stage.close();
+            });
+            no.setOnAction(event -> stage.close());
+            vbox.getChildren().add(label);
+            vbox.getChildren().add(yes);
+            vbox.getChildren().add(no);
+            Scene scene = new Scene(vbox);
+            stage.setScene(scene);
+            stage.show();
+        }
+    }
+    public Text setTexts(int numberSlices, int sliceId, String label){
+        double radius = controller.getWheelPane().getHeight()/4;
+        double angle = (360.0/numberSlices)*sliceId;
+        double x = radius*Math.sin(Math.toRadians(angle));
+        double y = radius*Math.cos(Math.toRadians(angle));
+        Text text = new Text(label);
+        text.setX(x+controller.getWheelPane().getWidth()/2-30);
+        text.setY(y+controller.getWheelPane().getHeight()/2);
+        text.setBoundsType(TextBoundsType.VISUAL);
+        text.setFont(new Font(20));
+        if (sliceId == 0){
+            text.setRotate(270);
+        } else {
+            text.setRotate(270-(360.0/numberSlices)*sliceId);
+        }
+        return text;
+    }
+    public Polygon createTriangle(Point2D p1, Point2D p2, Point2D p3, Color color){
+        Point2D centre = p1.midpoint(p2).midpoint(p3);
+        Point2D p1Corrected = p1.subtract(centre);
+        Point2D p2Corrected = p2.subtract(centre);
+        Point2D p3Corrected = p3.subtract(centre);
+        Polygon polygon = new Polygon(
+                p1Corrected.getX(), p1Corrected.getY(),
+                p2Corrected.getX(), p2Corrected.getY(),
+                p3Corrected.getX(), p3Corrected.getY()
+        );
+        polygon.setLayoutX(centre.getX());
+        polygon.setLayoutY(centre.getY());
+        polygon.setFill(color);
+        return polygon;
+    }
+    public Group drawSlice(int numSlices, int sliceId){
+        double radius = controller.getWheelPane().getHeight()/2;
+        double angle = (360.0/(numSlices))*sliceId;
+        Group group = new Group();
+        Arc arc = new Arc(
+                controller.getWheelPane().getWidth()/2,
+                controller.getWheelPane().getHeight()/2,
+                radius,
+                radius,
+                angle,
+                360.0/numSlices);
+        arc.setFill(colors[sliceId]);
+        group.getChildren().add(arc);
+        return group;
+    }
+    public Group drawSliceBody(int numSlices, int sliceId){
+        Group group = new Group();
+        double radius = controller.getWheelPane().getHeight()/2;
+        double angle_mid = (360.0/(numSlices))*sliceId;
+        double angle = angle_mid - 180.0/numSlices;
+        double sec_angle = angle_mid + 180.0/numSlices;
+        double x = radius*Math.sin(Math.toRadians(angle));
+        double y = radius*Math.cos(Math.toRadians(angle));
+        double sec_x = radius*Math.sin(Math.toRadians(sec_angle));
+        double sec_y = radius*Math.cos(Math.toRadians(sec_angle));
+        Polygon slice = createTriangle(
+                new Point2D(x+controller.getWheelPane().getWidth()/2, y+controller.getWheelPane().getHeight()/2),
+                new Point2D(sec_x+controller.getWheelPane().getWidth()/2, sec_y+controller.getWheelPane().getHeight()/2),
+                new Point2D(controller.getWheelPane().getWidth()/2, controller.getWheelPane().getHeight()/2),
+                colors[sliceId]
+        );
+        group.getChildren().add(slice);
+        return group;
     }
 
 }
+
