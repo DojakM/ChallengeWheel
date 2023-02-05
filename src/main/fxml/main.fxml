@@ -11,7 +11,6 @@
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.control.TreeView?>
@@ -95,8 +94,9 @@
                            <items>
                               <DatePicker fx:id="startDate" prefHeight="26.0" prefWidth="116.0" promptText="Start" />
                               <DatePicker fx:id="endDate" prefHeight="26.0" prefWidth="111.0" promptText="End" />
-                              <TextField fx:id="searchField" promptText="Search Field" />
-                              <ToggleButton fx:id="switchField" mnemonicParsing="false" />
+                              <ToggleButton fx:id="switchField" mnemonicParsing="false" text="Bool" />
+                              <Button fx:id="distButton" mnemonicParsing="false" text="Distribution" />
+                              <Button fx:id="punButton" mnemonicParsing="false" text="Punishment" />
                            </items>
                         </ToolBar>
                      </top>

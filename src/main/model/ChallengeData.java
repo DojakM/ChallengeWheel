@@ -37,9 +37,6 @@ public class ChallengeData {
     public ObservableList<Result> getResList() {
         return resList;
     }
-    public int getIndexOf(String opt){
-        return this.optlist.indexOf(opt);
-    }
     public void writeFile() throws IOException {
         FileWriter fileWriter = new FileWriter("src/main/data.csv", false);
         for (String category:

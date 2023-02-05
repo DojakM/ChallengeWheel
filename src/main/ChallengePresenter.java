@@ -1,5 +1,6 @@
 package main;
 
+import com.sun.javafx.css.StyleCache;
 import javafx.animation.RotateTransition;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -14,8 +15,14 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.SubScene;
+import javafx.scene.chart.*;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Arc;
@@ -32,12 +39,14 @@ import javafx.util.Duration;
 import main.model.ChallengeData;
 import main.model.Result;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -105,6 +114,40 @@ public class ChallengePresenter {
                 if (val_sio >= 0){sio.setValue(String.valueOf(val_sio));}
             }
         });
+        controller.getDistButton().setOnAction(event -> {
+            Stage stage = new Stage();
+            final CategoryAxis categoryAxis = new CategoryAxis();
+            final NumberAxis numberAxis = new NumberAxis();
+            BarChart<String, Number> barChart = new BarChart<>(categoryAxis, numberAxis);
+            barChart.setTitle("Distribution of done and undone tasks");
+            numberAxis.setLabel("Number of occurences");
+            XYChart.Series<String, Number> deries = new XYChart.Series<>();
+            deries.setName("Done");
+            XYChart.Series<String, Number> ueries = new XYChart.Series<>();
+            ueries.setName("Undone");
+            for (String option:
+                challengeData.getOptlist()){
+                int done = 0;
+                int undone = 0;
+                for (Result res:
+                     challengeData.getResList()) {
+                    if (res.getOption().equals(option)){
+                        if (res.isDone()){
+                            done++;
+                        } else {
+                            undone++;
+                        }
+                    }
+                }
+                deries.getData().add(new XYChart.Data<>(option, done));
+                ueries.getData().add(new XYChart.Data<>(option, undone));
+            }
+            barChart.getData().addAll(ueries, deries);
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            Scene scene = new Scene(barChart, screenSize.getWidth(), screenSize.getHeight());
+            stage.setScene(scene);
+            stage.show();
+        });
 
         // Add Listener to Wheel Tab, so it refreshes itself
         controller.getWheelTab().selectedProperty().addListener((o,v,e) ->{
@@ -141,10 +184,27 @@ public class ChallengePresenter {
                     StringProperty value = challengeData.getOpt_val_map().get(e.getValue());
                     controller.getValLabel().textProperty().bind(value);
                 }
+                else {
+                    ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList();
+                    for (String ob:
+                            challengeData.getCat_opt_map().get(e.getValue())) {
+                        int abundance = 0;
+                        for (Result res:
+                             challengeData.getResList()) {
+                            if (Objects.equals(res.getOption(), ob)){
+                                abundance+=1;
+                            }
+                        }
+                        pieData.add(new PieChart.Data(ob, abundance));
+                    }
+                    controller.getPieChart().setData(pieData);
+                    controller.getPieChart().setTitle("Abundance of Selections");
+                }
             }
         });
         controller.getTreeView().setRoot(root);
         controller.getTreeView().setShowRoot(false);
+
     }
     public void addOption(){
         Stage window = new Stage();
@@ -304,16 +364,9 @@ public class ChallengePresenter {
         });
         controller.getEndDate().setOnAction(e->{
             filteredList.setPredicate(result -> {
-                if (controller.getStartDate().getValue() == null){
+                if (controller.getEndDate().getValue() == null){
                     return true;
-                } else return !result.getLocalDateObjectProperty().isAfter(controller.getStartDate().getValue());
-            });
-        });
-        controller.getSearchField().textProperty().addListener((observable, oldValue, newValue) -> {
-            filteredList.setPredicate(result -> {
-                if (controller.getStartDate().getValue() == null){
-                    return true;
-                } else return result.getOption().toLowerCase().contains(newValue.toLowerCase());
+                } else return !result.getLocalDateObjectProperty().isAfter(controller.getEndDate().getValue());
             });
         });
         controller.getSwitchField().setOnAction(e->{
@@ -325,7 +378,60 @@ public class ChallengePresenter {
                 filteredList.setPredicate(result -> !result.isDone());
             }
         });
-
+        controller.getResTableView().setOnKeyPressed(event -> {
+            if (Objects.equals(event.getText(), "d")){
+                boolean now = controller.getResTableView().getSelectionModel().getSelectedItem().isDone();
+                controller.getResTableView().getSelectionModel().getSelectedItem().setIsDone(!now);
+                controller.getResTableView().refresh();
+            }
+        });
+        controller.getPunButton().setOnAction(e->{
+            Stage stage = new Stage();
+            VBox vBox = new VBox();
+            Slider slider = new Slider(0, 100, 50);
+            slider.setMajorTickUnit(5);
+            slider.setMinorTickCount(1);
+            slider.setSnapToTicks(true);
+            slider.setShowTickMarks(true);
+            slider.setShowTickLabels(true);
+            Label rat = new Label();
+            Label pun = new Label();
+            Label missing = new Label();
+            slider.valueProperty().addListener( ev -> {
+                rat.setText(String.valueOf(slider.getValue()));
+                double all = 0;
+                double finished = 0;
+                for (Result res:
+                     challengeData.getResList()) {
+                    all+=1;
+                    if (res.isDone()){
+                        finished+=1;
+                    }
+                }
+                double ratio = finished/all*100.0;
+                if (ratio<slider.getValue()){
+                    pun.setText("Punishment!");
+                } else {
+                    pun.setText("No Punishment");
+                }
+                double threshhold = Math.floor(all * slider.getValue()/100)+1;
+                if (threshhold>finished){
+                    missing.setText("You have to finish at least " +
+                            (threshhold - finished) +
+                            " more challenges!");
+                } else {
+                    missing.setText("You are in the clear! (" + (finished-threshhold) + ")");
+                }
+            });
+            vBox.getChildren().add(rat);
+            vBox.getChildren().add(slider);
+            vBox.getChildren().add(pun);
+            vBox.getChildren().add(missing);
+            vBox.setAlignment(Pos.CENTER);
+            Scene scene = new Scene(vBox, 300, 150);
+            stage.setScene(scene);
+            stage.show();
+        });
         SortedList<Result> sortedList = new SortedList<>(filteredList);
         sortedList.comparatorProperty().bind(controller.getResTableView().comparatorProperty());
         dateColumn.setMinWidth(200);
@@ -373,13 +479,7 @@ public class ChallengePresenter {
                 wheelSlices.getChildren().add(drawSlice(strings.size(), i));
 
             }
-            double offset;
-            if (strings.size()>2){
-                offset = 15*(strings.size()-1);
-            } else {
-                offset = 0;
-            }
-            wheelSlices.setRotate(360.0/strings.size() + offset);
+            wheelSlices.setRotate(90.0+(180.0/strings.size()));
             Group all_comp = new Group(wheelSlices,  wheelBody, texts);
             controller.getWheelPane().getChildren().add(all_comp);
             controller.getWheelPane().getChildren().add(polygon);

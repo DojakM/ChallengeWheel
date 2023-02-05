@@ -64,6 +64,23 @@ public class ChallengeController {
 
     @FXML
     private Tab wheelsTab;
+    @FXML
+    private Button punButton;
+    @FXML
+    private Button distButton;
+
+    public Tab getWheelsTab() {
+        return wheelsTab;
+    }
+
+    public Button getPunButton() {
+        return punButton;
+    }
+
+    public Button getDistButton() {
+        return distButton;
+    }
+
     public Tab getWheelTab() {
         return wheelsTab;
     }

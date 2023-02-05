@@ -8,7 +8,7 @@ public class Result {
     public Result(String date, String object, String isDone){
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         this.localDateObjectProperty = new SimpleObjectProperty<>(LocalDate.parse(date, dateTimeFormatter));
-        this.Done = new SimpleBooleanProperty(Boolean.getBoolean(isDone));
+        this.Done = new SimpleBooleanProperty(Boolean.parseBoolean(isDone));
         this.option = new SimpleStringProperty(object);
     }
     private ObjectProperty<LocalDate> localDateObjectProperty;
