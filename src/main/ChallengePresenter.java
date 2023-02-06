@@ -463,6 +463,7 @@ public class ChallengePresenter {
     public void setUpWheel(String category, ObservableList<String> strings){
         if (!spunAlready.contains(category)){
             controller.getWheelPane().getChildren().clear();
+            FXCollections.shuffle(strings);
             Group texts = new Group();
             Group wheelSlices = new Group();
             Group wheelBody = new Group();
